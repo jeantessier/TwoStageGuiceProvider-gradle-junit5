@@ -7,7 +7,7 @@ junit-jupiter = "5.10.2"
 [libraries]
 guice = { module = "com.google.inject:guice", version.ref = "guice" }
 byte-buddy = { module = "net.bytebuddy:byte-buddy", version.ref = "byte-buddy" }
-jmock-junit4 = { module = "org.jmock:jmock-junit4", version.ref = "jmock" }
+jmock-junit4 = { module = "org.jmock:jmock-junit5", version.ref = "jmock" }
 jmock-imposters = { module = "org.jmock:jmock-imposters", version.ref = "jmock" }
 junit-jupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit-jupiter" }
 

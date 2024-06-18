@@ -8,7 +8,7 @@ in turn.
 
 The finalized code makes up the rest of this repo.
 
-All examples use Guice 7.0.  They were tested with JUnit 4 and jMock 2.12 using
+All examples use Guice 7.0.  They were tested with JUnit 5 and jMock 2.13 using
 Java 21.
 
 ## Introduction
@@ -16,7 +16,7 @@ Java 21.
 I got the idea for this pattern as I was trying to reuse a framework.  This
 framework had been written for one specific application but its authors felt it
 was generic enough to write other applications.  I was to be the first one to
-try and use it outside of its original application.
+try and use it outside its original application.
 
 The framework uses Guice for its dependency injection.  Early on, I encountered
 a problem where the original application did a lot of custom settings up in a
@@ -43,7 +43,7 @@ public interface Service {
 ```
 
 It has different setup methods for different clients.  This example is to
-illustrate that different clients might setup the service differently.  In real
+illustrate that different clients might set up the service differently.  In real
 life, there would be no dependency from the service upon its clients.  For a
 more concrete example, the service might be a web server class and each client
 might configure a different set of URLs.
@@ -54,36 +54,28 @@ are looking for:
 ```java
 package service;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class TestServiceImpl {
-    private Service sut;
+class ServiceImplTests {
+    private final Service sut = new ServiceImpl();
 
-    @Before
-    public void setUp() {
-        sut = new ServiceImpl();
+    @Test
+    void default_StateEqualsGeneric() {
+        assertEquals("generic", sut.getState());
     }
 
     @Test
-    public void testDefault_StateEqualsGeneric() {
-        assertThat(sut.getState(), is(equalTo("generic")));
-    }
-
-    @Test
-    public void testSetupClient1_StateEqualsClient1() {
+    void setupClient1_StateEqualsClient1() {
         sut.setupClient1();
-        assertThat(sut.getState(), is(equalTo("client1")));
+        assertEquals("client1", sut.getState());
     }
 
     @Test
-    public void testSetupClient2_StateEqualsClient2() {
+    void setupClient2_StateEqualsClient2() {
         sut.setupClient2();
-        assertThat(sut.getState(), is(equalTo("client2")));
+        assertEquals("client2", sut.getState());
     }
 }
 ```
@@ -118,22 +110,20 @@ implementation.  Here is a test for it:
 ```java
 package generic;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import service.Service;
 
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-public class TestGenericModule {
-    private GenericModule sut = new GenericModule();
+class GenericModuleTests {
+    private final GenericModule sut = new GenericModule();
 
     @Test
-    public void testProvideService() {
+    void provideService() {
         Service actualService = sut.provideService();
-        assertThat(actualService, is(notNullValue()));
-        assertThat(actualService.getState(), is(equalTo("generic")));
+        assertNotNull(actualService);
+        assertEquals("generic", actualService.getState());
     }
 }
 ```
@@ -168,8 +158,8 @@ The variable `service` now references a plain `ServiceImpl`.
 
 ## Specialized Guice Modules
 
-Different clients who require a customized `Service` instance need to use a
-their own module instead of the previous `GenericModule`.
+Different clients who require a customized `Service` instance need to use their
+own module instead of the previous `GenericModule`.
 
 A hypothetical client No. 1 could need a module that follows the following
 specification, that it calls `setupClient1()` on an existing `Service` instance:
@@ -178,31 +168,29 @@ specification, that it calls `setupClient1()` on an existing `Service` instance:
 package client1;
 
 import org.jmock.Expectations;
-import org.jmock.integration.junit4.JUnitRuleMockery;
-import org.junit.Rule;
-import org.junit.Test;
+import org.jmock.junit5.JUnit5Mockery;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import service.Service;
 
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.sameInstance;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
-public class TestClient1Module {
-    @Rule
-    public final JUnitRuleMockery context = new JUnitRuleMockery();
+class Client1ModuleTests {
+    @RegisterExtension
+    JUnit5Mockery context = new JUnit5Mockery();
 
-    private Client1Module sut = new Client1Module();
+    private final Client1Module sut = new Client1Module();
 
     @Test
-    public void testProvideService() {
+    void provideService() {
         final Service mockService = context.mock(Service.class);
 
         context.checking(new Expectations() {{
-            one (mockService).setupClient1();
+            oneOf (mockService).setupClient1();
         }});
 
         Service actualService = sut.provideService(mockService);
-        assertThat(actualService, is(sameInstance(mockService)));
+        assertSame(mockService, actualService);
     }
 }
 ```
@@ -233,31 +221,29 @@ A hypothetical client No. 2 could require this specification instead:
 package client2;
 
 import org.jmock.Expectations;
-import org.jmock.integration.junit4.JUnitRuleMockery;
-import org.junit.Rule;
-import org.junit.Test;
+import org.jmock.junit5.JUnit5Mockery;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 import service.Service;
 
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.sameInstance;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
-public class TestClient2Module {
-    @Rule
-    public final JUnitRuleMockery context = new JUnitRuleMockery();
+class Client2ModuleTests {
+    @RegisterExtension
+    JUnit5Mockery context = new JUnit5Mockery();
 
-    private Client2Module sut = new Client2Module();
+    private final Client2Module sut = new Client2Module();
 
     @Test
-    public void testProvideService() {
+    void provideService() {
         final Service mockService = context.mock(Service.class);
 
         context.checking(new Expectations() {{
-            one (mockService).setupClient2();
+            oneOf (mockService).setupClient2();
         }});
 
         Service actualService = sut.provideService(mockService);
-        assertThat(actualService, is(sameInstance(mockService)));
+        assertSame(mockService, actualService);
     }
 }
 ```
@@ -508,9 +494,10 @@ necessary, whereas you can use the `@New` annotation only once.
 
 ----
 
-Date | Edit
----- | ----
-2009-01-28 | First draft.
-2009-01-29 | Last substantial edit.
-2020-04-28 | Making sure it all still works with the latest version of Guice.
-2020-05-03 | Remove empty `configure()` methods that are no longer needed in Guice `4.2.3`.
+| Date       | Edit                                                                           |
+|------------|--------------------------------------------------------------------------------|
+| 2009-01-28 | First draft.                                                                   |
+| 2009-01-29 | Last substantial edit.                                                         |
+| 2020-04-28 | Making sure it all still works with the latest version of Guice.               |
+| 2020-05-03 | Remove empty `configure()` methods that are no longer needed in Guice `4.2.3`. |
+| 2024-06-17 | Convert tests to JUnit 5 (JUnit Jupiter).                                      |

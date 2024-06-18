@@ -9,45 +9,43 @@ import com.google.inject.Module;
 import com.google.inject.name.Names;
 import generic.Client;
 import generic.GenericModule;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import service.Service;
 
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class TestModuleConfigurations {
+class ModuleConfigurationTests {
     private final Module genericModule = new GenericModule();
 
     @Test
-    public void testGettingServiceUsingClient1() {
+    void gettingServiceUsingClient1() {
         Module client1Module = new Client1Module();
         Injector injector = Guice.createInjector(genericModule, client1Module);
         Service actualService = injector.getInstance(Key.get(Service.class, Names.named("client1")));
-        assertThat(actualService.getState(), is(equalTo("client1")));
+        assertEquals("client1", actualService.getState());
     }
 
     @Test
-    public void testGettingServiceUsingClient2() {
+    void gettingServiceUsingClient2() {
         Module client2Module = new Client2Module();
         Injector injector = Guice.createInjector(genericModule, client2Module);
         Service actualService = injector.getInstance(Key.get(Service.class, Names.named("client2")));
-        assertThat(actualService.getState(), is(equalTo("client2")));
+        assertEquals("client2", actualService.getState());
     }
 
     @Test
-    public void testGettingClientUsingClient1() {
+    void gettingClientUsingClient1() {
         Module client1Module = new Client1Module();
         Injector injector = Guice.createInjector(genericModule, client1Module);
         Client actualClient = injector.getInstance(Client1.class);
-        assertThat(actualClient.getService().getState(), is(equalTo("client1")));
+        assertEquals("client1", actualClient.getService().getState());
     }
 
     @Test
-    public void testGettingClientUsingClient2() {
+    void gettingClientUsingClient2() {
         Module client2Module = new Client2Module();
         Injector injector = Guice.createInjector(genericModule, client2Module);
         Client actualClient = injector.getInstance(Client2.class);
-        assertThat(actualClient.getService().getState(), is(equalTo("client2")));
+        assertEquals("client2", actualClient.getService().getState());
     }
 }
