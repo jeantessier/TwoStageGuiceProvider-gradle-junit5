@@ -16,8 +16,11 @@ repositories {
 }
 
 dependencies {
+    implementation libs.guice
+
     // Use JUnit Jupiter for testing.
     testImplementation libs.junit.jupiter
+    testImplementation libs.bundles.jmock
 
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
