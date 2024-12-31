@@ -2,7 +2,7 @@
 guice = "7.0.0"
 byte-buddy = "1.14.17"
 jmock = "2.13.1"
-junit-jupiter = "5.11.1"
+junit-jupiter = "5.11.4"
 
 [libraries]
 guice = { module = "com.google.inject:guice", version.ref = "guice" }
