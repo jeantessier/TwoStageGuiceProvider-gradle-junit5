@@ -16,7 +16,7 @@ class Client1ModuleTests {
 
     @Test
     void provideService() {
-        final Service mockService = context.mock(Service.class);
+        Service mockService = context.mock(Service.class);
 
         context.checking(new Expectations() {{
             oneOf (mockService).setupClient1();
