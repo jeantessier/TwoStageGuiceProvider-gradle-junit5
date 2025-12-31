@@ -1,6 +1,6 @@
 [versions]
 guice = "7.0.0"
-byte-buddy = "1.18.2"
+byte-buddy = "1.18.3"
 jmock = "2.13.1"
 junit-jupiter = "6.0.1"
 
